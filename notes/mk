@@ -1,0 +1,4 @@
+#!/bin/bash
+
+exec latexmk -recorder -interaction=nonstopmode -pdfxe \
+       -xelatex="xelatex --shell-escape %O %S" -outdir=build notes.tex "$@"

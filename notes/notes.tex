@@ -1,0 +1,532 @@
+\documentclass{article}
+\usepackage{fontspec}
+\usepackage{mathtools}
+\usepackage{unicode-math}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage[framemethod=tikz]{mdframed}
+\usepackage{csquotes}
+\usepackage{mathpartir}
+\usepackage{datetime}
+
+\setmainfont{XITS}
+\setmathfont{XITS Math}
+\setmonofont[Scale=MatchLowercase]{DejaVu Sans Mono}
+
+\theoremstyle{definition}
+\newmdtheoremenv[innertopmargin=0pt]{definition}{Definition}
+\newmdtheoremenv[innertopmargin=0pt]{example}[definition]{Example}
+\newmdtheoremenv[innertopmargin=0pt]{lemma}[definition]{Lemma}
+\newmdtheoremenv[innertopmargin=0pt]{theorem}[definition]{Theorem}
+
+\newcommand{\Vars}{\mathcal{V}}
+\newcommand{\Base}{\mathcal{B}}
+\newcommand{\Types}{\mathcal{T}}
+\newcommand{\Terms}{\mathcal{S}}
+\newcommand{\Ctxs}{\mathcal{C}}
+\newcommand{\bv}{\mathrm{bv}}
+\newcommand{\fv}{\mathrm{fv}}
+\newcommand{\dom}{\mathrm{dom}}
+\newcommand{\cod}{\mathrm{cod}}
+\newcommand{\fresh}{\mathrm{fresh}}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\const}{\mathrm{const}}
+\newcommand{\app}{\mathrm{app}}
+\newcommand{\Lam}[2]{λ\,#1.\, #2}
+\newcommand{\All}[2]{∀\,#1.\, #2}
+\newcommand{\Ex}[2]{∃\,#1.\, #2}
+\newcommand{\unit}{\mathrm{unit}}
+\newcommand{\absurd}{\mathrm{absurd}}
+\newcommand{\pair}{\mathrm{pair}}
+\newcommand{\projl}{\ensuremath{\mathrm{projl}}}
+\newcommand{\projr}{\ensuremath{\mathrm{projr}}}
+\newcommand{\inl}{\ensuremath{\mathrm{inl}}}
+\newcommand{\inr}{\ensuremath{\mathrm{inr}}}
+\newcommand{\case}{\mathrm{case}}
+\newcommand{\lbl}[1]{\RightTirNameStyle{#1}}
+\newcommand{\infr}[3]{\inferrule*[right=#1]{#2}{#3}}
+
+\newenvironment{tinymathpar}{%
+  \begin{mathpar}
+  \tiny
+  \renewcommand{\RightTirNameStyle}[1]{\tiny{\textsc{##1}}}
+}{%
+  \end{mathpar}
+}
+
+\begin{document}
+
+\title{A Brief Introduction to Dependent Type Theory}
+\author{Jannis Limperg}
+\date{Last updated \today{} at \currenttime}
+\maketitle
+
+\section{Introduction}
+
+With these lecture notes, I aim to give readers the necessary background for (introductory) papers in dependent type theory.
+A major obstacle in this endeavour is that the term \enquote{type theory} refers not to one or two well-specified and well-studied formal systems but to a wide variety of systems with very different purposes and properties.
+Additionally, the presentation of these systems differs according to the aesthetic preferences of their authors.
+I try to represent a reasonable portion of this variety in these notes, but as a result the discussion remains fairly shallow.
+Also, readers should consider the systems which are discussed primarily as examples, focusing on the techniques for defining and analysing these systems rather than on the systems themselves.
+
+\section{Inductively Defined Relations}%
+\label{sec:indrel}
+
+Type theories are typically defined as collections of inductively defined sets and relations.
+We therefore first review this central technique, starting with a typical example.
+
+\begin{definition}[Transitive closure]
+  Let $A$ be a set and $R ⊆ A × A$ a binary relation on $A$.
+  The \emph{transitive closure} of $R$, written $R^{+}$, is inductively defined by the following rules:
+  \begin{itemize}
+    \item For all $a,b ∈ A$, if $aRb$ then $aR^{+}b$.
+    \item For all $a,b,c ∈ A$, if $aR^{+}b$ and $bR^{+}c$ then $aR^{+}c$.
+  \end{itemize}
+\end{definition}
+
+\enquote{Inductively defined} means that two elements $a,b ∈ A$ are related by $R^{+}$ if and only if we can prove this with finitely many applications of the given rules.
+Equivalently, $R^{+}$ is the smallest binary relation on $A$ that is closed under the given rules.
+
+\begin{example}\label{ex:transitive-closure}
+  Suppose $a,b,c,d ∈ A$ with $aRb$, $bRc$ and $cRd$.
+  Then $aR^{+}d$ since we can reach this conclusion with finitely many applications of the rules of $R^{+}$:
+  \begin{itemize}
+    \item From $aRb$ follows $aR^{+}b$.
+    \item From $bRc$ follows $bR^{+}c$.
+    \item From $aR^{+}b$ and $bR^{+}c$ follows $aR^{+}c$.
+    \item From $cRd$ follows $cR^{+}d$.
+    \item From $aR^{+}c$ and $cR^{+}d$ follows $aR^{+}d$.
+  \end{itemize}
+\end{example}
+
+We usually write the rules of an inductive relation as inference rules, with the premises of the rule above the horizontal bar and the conclusion below.
+Any variables occurring in an inference rule are implicitly universally quantified.
+The rules of $R^{+}$ would therefore usually be written as follows.
+
+\begin{mathpar}
+  \infr{Step}{aRb}{aR^{+}b}
+
+  \infr{Trans}{aR^{+}b \\ bR^{+}c}{aR^{+}c}
+\end{mathpar}
+
+The labels \lbl{Step} and \lbl{Trans} serve as names for the rules.
+We may now recast our proof of $aR^{+}d$ from example~\ref{ex:transitive-closure} as a tree of instantiations of the inference rules of $R^{+}$.
+Such trees are called \emph{derivation trees} or \emph{proof trees}.
+
+\begin{mathpar}
+  \infr{Trans}
+    {\infr{Trans}
+      {\infr{Step}
+        {\infr{}{ }{aRb}}
+        {aR^+b}
+       \\
+       \infr{Step}
+        {\infr{}{ }{bRc}}
+        {bR^+c}}
+      {aR^+c}
+     \\
+     \infr{Step}
+      {\infr{}{ }{cRd}}
+      {cR^{+}d}}
+    {aR^{+}d}
+\end{mathpar}
+
+We now define some more useful constructions on binary relations $R$ over a set $A$.
+
+\begin{definition}[Reflexive closure]
+  The \emph{reflexive closure} of $R$, $S$, is inductively defined by the following rules:
+
+  \begin{mathpar}
+    \infr{Step}{aRb}{aSb}
+
+    \infr{Refl}{  }{aSa}
+  \end{mathpar}
+\end{definition}
+
+Equivalently, $S = R ∪ \{(a, a) \mid a ∈ A\}$.
+
+\begin{definition}[Reflexive-transitive closure]
+  The \emph{reflexive-transitive closure} of $R$, written $R^{*}$, is inductively defined by the following rules:
+
+  \begin{mathpar}
+    \infr{Step}{aRb}{aR^{*}b}
+
+    \infr{Trans}{aR^{*}b \\ bR^{*}c}{aR^{*}c}
+
+    \infr{Refl}{  }{aR^{*}a}
+  \end{mathpar}
+\end{definition}
+
+Equivalently, $R^{*}$ is the reflexive closure of $R^{+}$.
+
+\begin{definition}[Symmetric closure]
+  The \emph{symmetric closure} of $R$, written $R^{↔}$, is inductively defined by the following rules:
+
+  \begin{mathpar}
+    \infr{Step}{aRb}{aR^{↔}b}
+
+    \infr{Sym}{aRb}{bR^{↔}a}
+  \end{mathpar}
+\end{definition}
+
+Equivalently, $R^{↔} = R ∪ \{(b, a) \mid (a, b) ∈ R\}$.
+
+\begin{definition}[Equivalence closure]
+  The \emph{reflexive-symmetric-transitive} or \emph{equivalence closure} of $R$, written $R^{=}$, is inductively defined by the following rules:
+
+  \begin{mathpar}
+    \infr{Step}{aRb}{aR^{=}b}
+
+    \infr{Refl}{  }{aR^{=}a}
+
+    \infr{Sym}{aRb}{bR^{=}a}
+
+    \infr{Trans}{aR^{=}b \\ bR^{=}c}{aR^{=}c}
+  \end{mathpar}
+\end{definition}
+
+Equivalently, $R^{=}$ is the symmetric closure of $R^{*}$.
+
+\section{The Simply-Typed Lambda Calculus}
+
+The simply-typed lambda calculus (STLC) is a minimalistic typed functional programming language that can also be viewed as a proof system for propositional logic.
+Type theories can be viewed as extensions of STLC, so it will be useful to consider some concepts and terminology in the simple setting of STLC before moving to type theories.
+
+To that end, we first define the types and terms (programs) of STLC.
+
+\begin{definition}[Variables]
+  We assume a countably infinite set $\Vars$ of variables.
+  We identify variables with strings, e.g.\ $x$, $y$, $\mathit{foo}$.
+\end{definition}
+
+\begin{definition}[Base Types]
+  We assume a nonempty set $\Base$ of \emph{base types}.
+\end{definition}
+
+\begin{definition}[Types]
+  The set $\Types$ of \emph{STLC types} is inductively generated by the following rules:
+
+  \begin{itemize}
+    \item If $T$ is a base type, then $T ∈ \Types$.
+    \item If $T$ and $U$ are STLC types, then $(T → U) ∈ \Types$.
+  \end{itemize}
+\end{definition}
+
+The type $T → U$ is the type of functions with domain $T$ and codomain $U$.
+The arrow associates to the right, so $T → U → V = T → (U → V)$.
+
+\begin{definition}[Terms]
+  The set $\Terms$ of \emph{STLC terms} is inductively generated by the following rules:
+
+  \begin{itemize}
+    \item Each $x \in \Vars$ is an STLC term.
+    \item If $t$ and $u$ are STLC terms, then $t~u$ is an STLC term.
+          We call $t~u$ the \emph{application} of $t$ to $u$.
+    \item If $x$ is a variable, $T$ is an STLC type and $t$ is an STLC term, then $\Lam{x : T}{t}$ is an STLC term.
+          We call $\Lam{x : T}{t}$ a \emph{function} or \emph{lambda abstraction} or \emph{abstraction}.
+  \end{itemize}
+\end{definition}
+
+If the type $T$ of a lambda abstraction $\Lam{x : T}{t}$ is clear from context, we write $\Lam{x}{t}$.
+In regular mathematical notation, we would write $t(u)$ instead of $t~u$ and $x ↦ t$ for $\Lam{x}{t}$.
+Application associates to the left, so $t~u~v = (t~u)~v$.
+The scope of an abstraction extends as far to the right as possible, so $\Lam{x : T}{t~u} = \Lam{x : T}{(t~u)}$ and $\Lam{x : T}{\Lam{y : U}{t~u}} = \Lam{x : T}{(\Lam{y : U}{(t~u)})}$.
+For the remainder of this section, we drop the \enquote{STLC} prefix, so we refer to STLC types as just \emph{types} and to STLC terms as just \emph{terms}.
+
+Here are two examples of STLC programs:
+
+\begin{example}
+  For any type $T$, we define the \emph{identity function at $T$} as the term $\id_{T} \coloneqq \Lam{x : T}{x}$.
+  This is the function that maps each element of $T$ to itself, i.e.\ $x \mapsto x$.
+\end{example}
+
+\begin{example}
+  For any two types $T$ and $U$, we define the \emph{constant function at $T$ and $U$} as the term $\const_{T,U} \coloneqq \Lam{x : T}{\Lam{y : U}{x}}$.
+  This is the function that takes two arguments, ignores the second one and returns the first one, i.e.\ $(x, y) ↦ x$.
+\end{example}
+
+The previous example illustrates that even though STLC only provides functions with one argument, we can simulate functions with multiple arguments.
+This is called \emph{currying} (after the mathematician Haskell Curry).
+The central observation is that a function with two arguments can be read as a function with one argument which returns a function with another argument.
+In mathematical notation: a function $f \coloneqq (x, y) ↦ x$ is equivalent to $g \coloneqq x ↦ (y ↦ x)$ since we can define $f(x, y) \coloneqq g(x)(y)$.
+In STLC, we cannot define $f$ since STLC does not have pairs (though these can be added), but we can define $g \coloneqq \Lam{x}{\Lam{y}{x}}$.
+The application of $g$ to two arguments $x$ and $y$ is written $(g~x)~y$ in STLC, and since application associates to the left, we usually write $g~x~y$.
+Additionally, we abbreviate nested abstractions $\Lam{x : T}{\Lam{y : U}{t}}$ as $\Lam{(x : T)~(y : U)}{t}$ (and similar for more than two arguments).
+These syntactic conventions allow us to think about functions as having multiple arguments without having to add new syntactic constructs.
+
+\subsection{Typing}
+
+STLC has typed functions, but nothing so far forces us to respect the types.
+For example, the term $\Lam{x : T}{\Lam{y : U}{x~y}}$ is a perfectly good STLC term even if $T$ is not a function type but a base type, e.g.\ the type of booleans or natural numbers.
+This is problematic because for an application to make sense, the term being applied must be a function.
+We therefore define a \emph{type system} which identifies those terms which we would intuitively consider sensible.
+
+\begin{definition}[Contexts]
+  An \emph{STLC context} is a partial map from variables to types.
+  The empty context $∅$ is the partial map with empty domain.
+  Given a context $Γ$, a variable $x$ and a type $T$, $Γ,\, x : T$ is the partial map that maps $x$ to $T$ and any other variable $y$ to $Γ(y)$.
+\end{definition}
+
+\begin{definition}[Typing]
+  The \emph{STLC typing relation} is a subset of $\Ctxs × \Terms × \Types$.
+  If a context $Γ$, term $t$ and type $T$ are in this relation, we write $Γ ⊢ t : T$.
+  The typing relation is defined inductively by the following rules:
+
+  \begin{mathpar}
+    \infr{Var}{Γ(x) = T}{Γ ⊢ x : T}
+
+    \infr{App}{Γ ⊢ f : T → U \\ Γ ⊢ t : T}{Γ ⊢ t~u : U}
+
+    \infr{Abs}{Γ,\, x : T ⊢ t : U}{Γ ⊢ \Lam{x : T}{t} : T → U}
+  \end{mathpar}
+
+  All rules have additional premises, left implicit for readability, which ensure that the rule references the right kinds of objects.
+  E.g.\ the $\lbl{Var}$ rule has premises $Γ \in \Ctxs$, $x ∈ \Vars$ and $T ∈ \Types$.
+
+  We abbreviate $∅ ⊢ t : T$ as $⊢ t : T$.
+  A term $t$ is \emph{well-typed} if there is a type $T$ such that $⊢ t : T$.
+  A term $t$ is \emph{well-typed in context $Γ$} if there is a type $T$ such that $Γ ⊢ t : T$.
+\end{definition}
+
+The symbols $⊢$ and $:$ in $Γ ⊢ t : T$ have lower precedence than any STLC syntax, so the conclusion of the \lbl{Abs} rule should be read as $Γ ⊢ (\Lam{x : T}{t}) : T → U$.
+We are usually only interested in well-typed terms (in some ambient context).
+Many authors therefore call our terms \enquote{preterms} or \enquote{pseudoterms} and reserve the word \enquote{term} for well-typed preterms.
+
+\begin{example}
+  We show that the constant function at types $T$ and $U$ is well-typed, i.e.\ $⊢ \Lam{x : T}{\Lam{y : U}{x} : T → U → T}$.
+  Since the typing relation is inductively defined, a proof of $Γ ⊢ t : T$ for some $Γ$, $t$ and $T$ is a proof tree
+
+  This is done by repeatedly applying the rules of the STLC typing relation, arranging them in a derivation tree as in Section~\ref{sec:indrel}:
+
+  \begin{mathpar}
+    \infr{Abs}
+        {\infr{Abs}
+            {\infr{Var}
+                {\infr{}
+                    { }
+                    {(∅,\, x : T,\, y : U)(x) = T}}
+                {∅,\, x : T,\, y : U ⊢ x : T}}
+            {∅,\, x : T ⊢ \Lam{y : U}{x} : U → T}}
+        {⊢ \Lam{x : T}{\Lam{y : U}{x} : T → U → T}}
+  \end{mathpar}
+\end{example}
+
+\begin{example}
+  We show that the \emph{application function at types $T$ and $U$}, $\app_{T,U} \coloneqq \Lam{f : T → U}{\Lam{t : T}}{f~t}$, is well-typed.
+
+  \begin{tinymathpar}
+    \infr{Abs}
+        {\infr{Abs}
+            {\infr{App}
+                {\infr{Var}
+                    {\infr{}{ }{(∅,\, f : T → U,\, t : T)(f) = T → U}}
+                    {∅,\, f : T → U,\, t : T ⊢ f : T → U}
+                 \\
+                 \infr{Var}
+                    {\infr{}{ }{(∅,\, f : T → U,\, t : T)(t) = T}}
+                    {∅,\, f : T → U,\, t : T ⊢ t : T}
+                }
+                {∅,\, f : T → U,\, t : T ⊢ f~t : U}}
+            {∅,\, f : T → U ⊢ \Lam{t : T}{f~t} : T → U}}
+        {⊢ \Lam{f : T → U}{\Lam{t : T}}{f~t} : (T → U) → T → U}
+  \end{tinymathpar}
+\end{example}
+
+\subsection{Bound and Free Variables}
+
+An abstraction $\Lam{x : T}{t}$ binds the variable $x$, so $x$ is in scope in the abstraction's body $t$ (but not outside it).
+In this sense, abstractions are similar to the quantifiers $\All{x}{P(x)}$ and $\Ex{x}{P(x)}$ of predicate logic, and so we define similar notions of bound and free variables.
+
+\begin{definition}[Bound variables]
+  The \emph{bound variables} of a term $t$, $\bv(t)$, are those variables which are bound by an abstraction.
+  We define $\bv(t)$ by recursion on $t$:
+
+  \begin{align*}
+    \bv(x) &\coloneqq ∅ \\
+    \bv(t~u) &\coloneqq \bv(t) ∪ \bv(u) \\
+    \bv(\Lam{x : T}{u}) &\coloneqq \bv(u) ∪ \{x\}
+  \end{align*}
+\end{definition}
+
+\begin{definition}[Free variables]
+  The \emph{free variables} of a term $t$, $\fv(t)$, are those variables which appear in $t$ without being bound by an abstraction.
+  We also define $\fv(t)$ by recursion on $t$:
+
+  \begin{align*}
+    \fv(x) &\coloneqq \{x\} \\
+    \fv(t~u) &\coloneqq \fv(t) ∪ \fv(u) \\
+    \fv(\Lam{x : T}{u}) &\coloneqq \fv(u) \setminus \{x\}
+  \end{align*}
+
+  A term $t$ is \emph{closed} if $\fv(t) = ∅$.
+\end{definition}
+
+\subsection{α-Equivalence}
+
+What is the difference between the terms $t ≔ \Lam{x : T}{x}$ and $u ≔ \Lam{y : T}{y}$?
+Nothing except the syntactic detail that we chose $x$ as the variable name for $t$ and $y$ for $u$.
+We would therefore like to consider $t$ and $u$ as \enquote*{the same} function, and so we define an equivalence relation that relates precisely those terms which are equal up to renaming of bound variables.
+
+\begin{definition}[α-equivalence]
+  Two terms $t$ and $u$ are \emph{α-equivalent}, written $t ≡_{α} u$, if $t$ can be made equal to $u$ by renaming bound variables.
+\end{definition}
+
+The principle that variable names do not matter allows us to avoid \enquote*{collisions} between the bound variables of a term and variables occurring elsewhere.
+
+\begin{lemma}\label{lem:fresh-terms}
+  Given a finite set $V$ of variables and a term $t$, there is a term $t'$ such that $t ≡_{α} t'$ and $\bv(t') ∩ V = ∅$.
+  We define $\fresh(t, V)$ as $t$ if $\bv(t') ∩ V = ∅$ and otherwise as an arbitrary $t'$ satisfying this condition.
+\end{lemma}
+
+\begin{proof}
+  The sets $V$ and $\bv(t)$ are finite while the set of variables $\Vars$ is countably infinite.
+  We can thus select $|\bv(t)|$ variables from $\Vars$ which are not in $V$ and rename the bound variables in $t$ to obtain $t'$.
+\end{proof}
+
+\subsection{Substitution}
+
+If we want to consider STLC as a programming language, we need to explain how a program (term) is evaluated.
+A key ingredient for this is substitution, which is used to define the evaluation of function applications:
+the application $(\Lam{x : T}{t})~u$ evaluates to $t[x ↦ u]$, which is the term $t$ with every free occurrence of the variable $x$ replaced by $u$.
+This is called the substitution of $u$ for $x$ in $t$.
+
+\begin{definition}[Substitution]
+  A \emph{(simultaneous) substitution} $σ$ is a partial map from variables to terms.
+  The domain of $σ$ must be finite.
+  We write $\{x₁ ↦ t₁, \dots, xₙ ↦ tₙ\}$ for the substitution $σ$ with domain $\{x₁, \dots xₙ\}$ and $σ(xᵢ) = tᵢ$ for all $i ∈ \{1, \dots, n\}$.
+\end{definition}
+
+This definition is somewhat more general than that often given in the literature, which only considers the substitution of one variable at a time.
+But our definition is more natural for certain applications, especially the definition of category-theoretical models of type theory, in which substitutions play a surprisingly important part.
+
+For the application of a substitution to a term, we first consider an almost-correct definition:
+
+\begin{definition}[Naive application of a substitution]
+  The \emph{naive application} of a substitution $σ$ to a term $t$, written $t⟨σ⟩$, is defined by recursion on $t$:
+
+  \begin{align*}
+    x⟨σ⟩ &\coloneqq σ(x) \\
+    (t₁~t₂)⟨σ⟩ &≔ t₁⟨σ⟩~t₂⟨σ⟩ \\
+    (\Lam{x : T}{t})⟨σ⟩ &≔ \Lam{x : T}{t⟨σ⟩}
+  \end{align*}
+\end{definition}
+
+We abbreviate $t⟨\{x₁ ↦ t₁, \dots, xₙ ↦ tₙ\}⟩$ as $t⟨x₁ ↦ t₁, \dots, xₙ ↦ tₙ⟩$.
+Substitution applications have higher precedence than term operators, so $t~u[σ]$ is the application of the term $t$ to the term $u[σ]$.
+
+The first two cases of the naive definition are sensible, but the third has two subtle flaws.
+First, it ignores the fact that $x$ is bound by the lambda abstraction, so we get $(\Lam{x : T}{t})⟨x ↦ u⟩ = \Lam{x : T}{u}$ even though the substitution should only replace free occurrences of $x$.
+Second, substitution as defined above can also introduce new bindings: $(\Lam{x : T}{y})⟨x ↦ y⟩ = \Lam{x : T}{x}$.
+We say that the substitution has \emph{captured} $x$, which was previously free; this is also incorrect.
+To solve both problems, we define \emph{capture-avoiding substitution}.
+
+\begin{definition}[Capture-avoiding application of a substitution]
+  The \emph{capture-avoiding application} of a substitution $σ$ to a term $t$ is
+  \[
+    t[σ] ≔ \fresh(t, \dom(σ) ∪ \bigcup_{u ∈ \cod(σ)} \fv(u))⟨σ⟩
+  \]
+\end{definition}
+
+This means that we first rename all bound variables in $t$ to avoid collisions with variables that are either substituted by $σ$ or that occur freely in the codomain of $σ$.
+After this renaming, the naive application of $σ$ can no longer lead to collisions.
+
+All this concern about variable names is in some sense a technical triviality since we know that we can always rename variables as necessary to avoid collisions.
+Some papers therefore use the \emph{Barendregt convention}, which states that whenever there is a risk of collision, we implicitly rename variables to avoid it.
+Effectively, the $\fresh$ function is applied implicitly.
+This is very convenient on paper and we will use the convention henceforth.
+But formal developments of type theories cannot take such liberties.
+
+\subsection{Small-Step Operational Semantics}
+
+Terms were so far mere syntactic constructs which we only informally interpreted as functions.
+We now make this interpretation precise by giving terms a meaning, or semantics, which treats them as programs that can be evaluated.
+
+\begin{definition}[Single-step evaluation relation]
+  The \emph{single-step evaluation relation} $↝$ is a subset of $\Terms × \Terms$.
+  It is defined inductively by the following rules:
+
+  \begin{mathpar}
+    \infr{β}{ }{(\Lam{x : A}{t})~u ↝ t[x ↦ u]}
+
+    \infr{CongAppL}{t ↝ t'}{t~u ↝ t'~u}
+
+    \infr{CongAppR}{u ↝ u'}{t~u ↝ t~u'}
+  \end{mathpar}
+\end{definition}
+
+For terms $t,u$ with $t ↝ u$, we say that $t$ \emph{reduces to} or \emph{evaluates to} $u$ in one \emph{reduction} or \emph{evaluation step}.
+The relation $↝$ has one \enquote*{substantive} rule, \lbl{β}, and two congruence rules, \lbl{CongAppL} and \lbl{CongAppR}.
+The \lbl{β} rule specifies how a function application is reduced.
+An application of this rule is called a \emph{β-reduction}.
+The congruence rules allow us to apply the $β$ rule at an arbitrary location in a term, as the next example shows.
+
+Our evaluation relation encodes a \emph{call-by-need} (\enquote{lazy}) evaluation strategy.
+This means that in a function application $(\Lam{x}{t})~u$, the argument $u$ is not necessarily fully evaluated before it is substituted into the function body $u$.
+An evaluation relation that requires $u$ to be evaluated first would be called \emph{call-by-value}, and there are also other evaluation strategies.
+However, these different strategies are typically not of major importance for type theories (at least those that are also used as logics) since they tend to have the property that all evaluation strategies eventually yield the same result.
+
+\begin{example}\label{ex:untyped-single-step}
+  We show that $\const_{T,U}~x~y ↝ (\Lam{y : U}{x})~y$.
+
+  \begin{mathpar}
+    \infr{CongAppL}
+      {\infr{β}
+        { }
+        {(\Lam{x : T}{\Lam{y : U}{x}})~x ↝ \Lam{y : U}{x}}}
+      {(\Lam{x : T}{\Lam{y : U}{x}})~x~y ↝ (\Lam{y : U}{x})~y}
+  \end{mathpar}
+\end{example}
+
+So far, we have only specified how to perform one computation step (namely, one $β$-reduction).
+But with this, it is easy to define how to evaluate a program in multiple computation steps.
+
+\begin{definition}[Multi-step evaluation relation]
+  The \emph{multi-step evaluation relation} $↝^{*}$ is the reflexive-transitive closure of the single-step evaluation relation $↝$.
+\end{definition}
+
+\begin{example}
+  We show that $\const_{T,U}~x~y ↝^{*} x$.
+
+  \begin{mathpar}
+    \infr{Trans}
+    { \infr{Step}
+      {\infr{}
+        {\text{\upshape (example~\ref{ex:untyped-single-step})}}
+        {\const_{T,U}~x~y ↝ (\Lam{y : U}{x})~y}}
+      {\const_{T,U}~x~y ↝^* (\Lam{y : U}{x})~y}
+      \\
+      \infr{Step}
+      { \infr{β}
+        { }
+        {(\Lam{y : U}{x})~y ↝ x}}
+      {(\Lam{y : U}{x})~y ↝^* x}}
+    {\const_{T,U}~x~y ↝^{*} x}
+  \end{mathpar}
+\end{example}
+
+The multi-step evaluation relation $↝^{*}$ explains how STLC programs are executed.
+We call such an explanation an \emph{operational semantics}.
+The particular way in which we defined $↝^{*}$---first describe single computation steps with $↝$, then take the reflexive-transitive closure---is called \emph{small-step operational semantics}.
+An alternative approach, which describes the result of a whole program at once (and which we will not discuss here), is called \emph{big-step operational semantics}.
+
+From the small-step semantics, we obtain a notion of when two programs are equivalent.
+
+\begin{definition}[β-equivalence]
+  Two terms $t$ and $u$ are \emph{β-equivalent} if $t ↝^{*} u$ or $u ↝^{*} t$.
+\end{definition}
+
+In other words, β-equivalence is the symmetric closure of $↝^{*}$, and hence the equivalence closure of $↝$.
+Two β-equivalent terms $t$ and $u$ are also called \emph{convertible}.
+
+\begin{definition}[β-redex]
+  A term $t$ is a \emph{β-redex} if $t = (\Lam{x : T}{u})~v$ for some $x,T,u,v$.
+\end{definition}
+
+In other words, a term is a β-redex if it could be reduced by an application of the β rule.
+
+\begin{definition}[β-normal form]
+  A term $t$ is \emph{β-normal} or in \emph{β-normal form} if there is no term $u$ such that $t ↝ u$.
+\end{definition}
+
+Equivalently, a β-normal term is fully evaluated, meaning it does not contain any β-redexes as subterms.
+\end{document}
