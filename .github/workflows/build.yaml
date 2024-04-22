@@ -12,4 +12,4 @@ jobs:
       with:
         texlive_version: 2023
         scheme: full
-        run: ./mk
+        run: cd notes && ./mk
