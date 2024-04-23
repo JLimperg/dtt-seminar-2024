@@ -86,7 +86,9 @@ We therefore first review this central technique, starting with a typical exampl
   \end{itemize}
 \end{definition}
 
-\enquote{Inductively defined} means that two elements $a,b ∈ A$ are related by $R^{+}$ if and only if we can prove this with finitely many applications of the given rules.
+\enquote{Inductively defined} means that two elements $a,b ∈ A$ are related by $R^{+}$ if and only if we can prove this with finitely many applications of the given rules.%
+\footnote{This is not quite true in general: if a rule has infinitely many premises, then to apply this rule we must provide infinitely many subproofs.
+  However, we will only use rules with finitely many premises.}
 Equivalently, $R^{+}$ is the smallest binary relation on $A$ that is closed under the given rules.
 
 \begin{example}\label{ex:transitive-closure}
