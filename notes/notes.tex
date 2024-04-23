@@ -19,6 +19,7 @@
 \newmdtheoremenv[innertopmargin=0pt]{example}[definition]{Example}
 \newmdtheoremenv[innertopmargin=0pt]{lemma}[definition]{Lemma}
 \newmdtheoremenv[innertopmargin=0pt]{theorem}[definition]{Theorem}
+\newmdtheoremenv[innertopmargin=0pt]{corollary}[definition]{Corollary}
 
 \newcommand{\Vars}{\mathcal{V}}
 \newcommand{\Base}{\mathcal{B}}
@@ -461,11 +462,6 @@ The \lbl{β} rule specifies how a function application is reduced.
 An application of this rule is called a \emph{β-reduction}.
 The congruence rules allow us to apply the $β$ rule at an arbitrary location in a term, as the next example shows.
 
-Our evaluation relation encodes a \emph{call-by-need} (\enquote{lazy}) evaluation strategy.
-This means that in a function application $(\Lam{x}{t})~u$, the argument $u$ is not necessarily fully evaluated before it is substituted into the function body $u$.
-An evaluation relation that requires $u$ to be evaluated first would be called \emph{call-by-value}, and there are also other evaluation strategies.
-However, these different strategies are typically not of major importance for type theories (at least those that are also used as logics) since they tend to have the property that all evaluation strategies eventually yield the same result.
-
 \begin{example}\label{ex:untyped-single-step}
   We show that $\const_{T,U}~x~y ↝ (\Lam{y : U}{x})~y$.
 
@@ -727,5 +723,136 @@ The distinction between constructive and classical logic will become most salien
 In contrast, classical predicate logic, which is used for the vast majority of mathematics, allows indirect existence proofs:
 to prove $\Ex{x}{P(x)}$, it suffices to prove $¬¬ \Ex{x}{P(x)}$ (by the principle of \emph{double negation elimination}).
 Such a proof need not, and usually does not, construct a suitable object $x$.
+
+\subsection{Some Metatheoretic Properties of STLC}
+
+We now discuss (but largely do not prove) some metatheoretic properties of both STLC and λL.
+Type theories are typically designed to have at least some of these properties.
+The first four properties are relatively straightforward result about the type system.
+
+\begin{theorem}[Uniqueness of typing]
+  For any context $Γ$, term $t$ and types $T,U$, if $Γ ⊢ t : T$ and $Γ ⊢ t : U$, then $T = U$.
+\end{theorem}
+
+Uniqueness of typing states that a term only has one type.
+Most type theories have this property, though sometimes it is weakened to allow a term to have a family of \enquote*{essentially equivalent} types.
+
+\begin{theorem}[Decidability of type checking]
+  For any context $Γ$, term $t$ and type $T$, it is decidable whether $Γ ⊢ t : T$ or $Γ ⊬ t : T$.
+\end{theorem}
+
+Decidability of type checking means that there is an algorithm which decides whether a program has a given type (in a given context).
+This is essential if we want a computer to be able to typecheck our type theory.
+
+\begin{theorem}[Subject reduction]\label{th:subject-reduction}
+  For any context $Γ$, terms $t,u$ and type $T$, if $Γ ⊢ t : T$ and $t ↝^{*} u$, then $Γ ⊢ u : T$.
+\end{theorem}
+
+Subject reduction states that the type of an expression does not change during evaluation.
+This may seem like a straightforward requirement, but some popular type theories break subject reduction in subtle (and ultimately harmless) ways.
+Subject reduction (or a slightly weaker version) is sometimes called \emph{preservation}.
+
+The next four results concern the reduction relation.
+First, the confluence theorem states that if we start to evaluate a term $t$ in two different ways, obtaining terms $u₁$ and $u₂$, then we can continue the evaluation of both $u₁$ and $u₂$ in such a way that we end up with the same term $v$.
+This is also called the diamond property.
+The term \enquote{Church-Rosser property} refers either to confluence or to a slightly different but equivalent property.
+
+\begin{theorem}[Confluence/Church-Rosser/Diamond property]\label{th:confluence}
+  For any well-typed term $t$, if $t ↝^{*} u₁$ and $t ↝^{*} u₂$ for some terms $u₁$ and $u₂$, then there is a term $v$ such that $u₁ ↝^{*} v$ and $u₂ ↝^{*} v$.
+\end{theorem}
+
+Confluence immediately implies that if a term has a β-normal form, this form is unique.
+
+\begin{corollary}[Uniqueness of normal forms]\label{th:nf-unique}
+  For any well-typed term $t$ and β-normal terms $u$ and $v$, if $t ↝^{*} u$ and $t ↝^{*} v$, then $u ≡_{α} v$.
+\end{corollary}
+
+\begin{proof}
+  Suppose $t ↝^{*} u$ and $t ↝^{*} v$.
+  By confluence, there is a term $w$ such that $u ↝^{*} w$ and $v ↝^{*} w$.
+  But since $u$ is β-normal, it cannot be the case that $u ↝ w$, so $u$ and $w$ must already be α-equivalent, and similar for $v$.
+  Hence $u ≡_{α} w ≡_{α} v$.
+\end{proof}
+
+Next, weak normalisation states that any well-typed term can be evaluated to a normal form.
+In other words, for any well-typed term there is a β-normalising reduction sequence.
+However, if we apply the wrong evaluation steps, we may
+
+\begin{theorem}[Weak normalisation]\label{th:wn}
+  For any well-typed term $t$, there is a β-normal term $u$ such that $t ↝^{*} u$.
+\end{theorem}
+
+Strong normalisation strengthens the weak normalisation property by requiring that \emph{all} reduction sequences are β-normalising.
+This means that we can apply the evaluation rules in any order to reach a β-normal form, which is unique by Theorem~\ref{th:nf-unique}.
+
+\begin{theorem}[Strong normalisation]\label{th:sn}
+  For any well-typed term $t₁$, any sequence of $↝$-reductions $t₁ ↝ t₂ ↝ \dots$ is finite.
+\end{theorem}
+
+When viewing λL as a programming language, strong normalisation tells us that all programs in this language terminate, as any sequence of evaluation steps eventually halts.
+The language can therefore not be Turing-complete.
+
+However, in practice, we not only want our programs to terminate but also to compute sensible values.
+So a closed program of type $T × U$ should compute a pair of values of $T$ and $U$; a closed program of type $T + U$ should compute a value of the form $\inl_{U}~t$ or $\inl_{T}~u$; and so on.
+This means that closed β-normal forms should be \emph{canonical} and if this is the case, we say that λL enjoys \emph{canonicity}.
+
+To prove canonicity, we first partition the normal forms into those we consider canonical and those we consider non-canonical.
+
+\begin{definition}[Values]
+  A β-normal term $t$ is \emph{canonical} or a \emph{value} if it has one of the following forms.
+  \begin{itemize}
+    \item $t = \unit$
+    \item $t = \Lam{x : U}{v}$ for some $u, U, v$
+    \item $t = (u, v)$ for some $u, v$
+    \item $t = \inl_{U}~v$ for some $U, v$
+    \item $t = \inl_{V}~u$ for some $V, u$
+  \end{itemize}
+  Non-canonical β-normal terms are called \emph{neutral} or \emph{stuck}.
+\end{definition}
+
+It is now straightforward to prove canonicity.
+
+\begin{theorem}[Canonicity]
+  For any β-normal term $t$ and type $T$ with $⊢ t : T$, $t$ is a value.
+\end{theorem}
+
+\begin{proof}
+  By induction on $t$.
+  \begin{itemize}
+    \item $t = \Lam{x : U}{v}$, $t = \unit$, $t = (u, v)$, $t = \inl_{V}~u$ or $t = \inr_{U}~v$.
+          Then $t$ is a value.
+    \item $t = x$ with $x$ a variable.
+          This is impossible since no variable is well-typed in the empty context.
+    \item $t = \absurd_{T}~u$ with $⊢ u : ⊥$.
+          Since subterms of β-normal terms are also β-normal, $u$ is β-normal.
+          Hence, by the induction hypothesis, $u$ is a value.
+          However, there is no value of type $⊥$, so this is impossible.
+    \item $t = u~v$.
+          By the induction hypothesis, $u$ must also be a value.
+          But then $u$ must be of the form $\Lam{x : V}{w}$ in order for $t$ to be well-typed, so $t$ is not β-normal.
+          So this case is also impossible.
+    \item $t = π₁~u$ or $t = π₂~u$.
+          Similar to the previous case, $u$ must be of the form $(v, w)$, so $t$ is not β-normal.
+    \item $t = \case_{V}~u~l~r$.
+          Similar to the previous case, $u$ must be of the form $\inl_{W}~v$ or $\inr_{W}~v$, so $t$ is not β-normal.
+  \end{itemize}
+\end{proof}
+
+From canonicity immediately follows another very important property, \emph{consistency}.
+It states that there is no closed term of type $⊥$ or, equivalently, that the false proposition is not provable in λL.
+This property makes λL viable as a logic.
+
+\begin{theorem}[Consistency]
+  There is no term $t$ such that $⊢ t : ⊥$.
+\end{theorem}
+
+\begin{proof}
+  Suppose there is such a term $t$.
+  Then, by strong normalisation (Theorem~\ref{th:sn}), there is a β-normal term $t'$ with $t ↝^{*} t'$ and thus, by subject reduction (Theorem~\ref{th:subject-reduction}), $⊢ t' : ⊥$.
+  By canonicity, $t'$ is a value, but there is no value of type $⊥$, so we have a contradiction.
+\end{proof}
+
+Some authors use slightly different notions of consistency, but these are implied by the previous theorem.
+Canonicity is sometimes taken to mean that every term reduces to a value, but this is an immediate consequence of strong normalisation and our notion of canonicity.
 
 \end{document}
