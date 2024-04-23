@@ -598,7 +598,7 @@ Constructors are canonical elements of the new types, in the sense that e.g.\ a 
 Dually, destructors, also called \emph{eliminators}, are the functions which consume one of the new types: $\absurd$, $\projl$, $\projr$ and $\case$.
 They extract information from these types; e.g.\ $π₁$ and $π₂$ extract the components of a pair.
 
-\begin{definition}[Typing]\label{ll-typing}
+\begin{definition}[Typing]\label{def:ll-typing}
   The typing relation $Γ ⊢ t : T$ of λL, where $Γ$ is a λL context, $t$ a λL term and $T$ a λL type, is inductively defined by the following rules.
 
   \begin{mathpar}
@@ -675,7 +675,7 @@ The various \lbl{Cong} rules are congruence rules which, as in STLC, allow us to
 
 \subsection{The Curry-Howard Correspondence}
 
-The typing rules of λL given in Definition~\ref{ll-typing} bear a striking resemblance to natural deduction rules for propositional logic.
+The typing rules of λL given in Definition~\ref{def:ll-typing} bear a striking resemblance to natural deduction rules for propositional logic.
 Consider the \lbl{Pair} rule:
 \begin{mathpar}
   \infr{Pair}{Γ ⊢ t : T \\ Γ ⊢ u : U}{Γ ⊢ (t, u) : T × U}
@@ -728,31 +728,31 @@ Such a proof need not, and usually does not, construct a suitable object $x$.
 
 \subsection{Some Metatheoretic Properties of STLC}
 
-We now discuss (but largely do not prove) some metatheoretic properties of both STLC and λL.
-Type theories are typically designed to have at least some of these properties.
-The first four properties are relatively straightforward result about the type system.
+We now discuss some metatheoretic properties of both STLC and λL (omitting most proofs).
+The type theories used in theorem provers such as Agda, Coq and Lean are designed to have most of these properties, though with some caveats.
+
+We start with uniqueness of typing, which states that a term only has one type.
+For STLC, this is quite straightforward.
+For more complex theories, uniqueness sometimes has to be weakened to allow a term to have a family of equivalent types (in some sense).
 
 \begin{theorem}[Uniqueness of typing]
   For any context $Γ$, term $t$ and types $T,U$, if $Γ ⊢ t : T$ and $Γ ⊢ t : U$, then $T = U$.
 \end{theorem}
 
-Uniqueness of typing states that a term only has one type.
-Most type theories have this property, though sometimes it is weakened to allow a term to have a family of \enquote*{essentially equivalent} types.
+Next, decidability of type checking means that there is an algorithm which decides whether a program has a given type (in a given context).
+This is essential if we want a computer to be able to typecheck our type theory.
 
 \begin{theorem}[Decidability of type checking]
   For any context $Γ$, term $t$ and type $T$, it is decidable whether $Γ ⊢ t : T$ or $Γ ⊬ t : T$.
 \end{theorem}
 
-Decidability of type checking means that there is an algorithm which decides whether a program has a given type (in a given context).
-This is essential if we want a computer to be able to typecheck our type theory.
+Subject reduction states that the type of an expression does not change during evaluation.
+This may seem like a straightforward requirement, but some popular type theories break subject reduction in subtle (and ultimately harmless) ways.
+Subject reduction (or a slightly weaker version) is sometimes called \emph{preservation}.
 
 \begin{theorem}[Subject reduction]\label{th:subject-reduction}
   For any context $Γ$, terms $t,u$ and type $T$, if $Γ ⊢ t : T$ and $t ↝^{*} u$, then $Γ ⊢ u : T$.
 \end{theorem}
-
-Subject reduction states that the type of an expression does not change during evaluation.
-This may seem like a straightforward requirement, but some popular type theories break subject reduction in subtle (and ultimately harmless) ways.
-Subject reduction (or a slightly weaker version) is sometimes called \emph{preservation}.
 
 The next four results concern the reduction relation.
 First, the confluence theorem states that if we start to evaluate a term $t$ in two different ways, obtaining terms $u₁$ and $u₂$, then we can continue the evaluation of both $u₁$ and $u₂$ in such a way that we end up with the same term $v$.
