@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass{scrartcl}
 \usepackage{fontspec}
 \usepackage{mathtools}
 \usepackage{unicode-math}
@@ -13,6 +13,8 @@
 \setmainfont{XITS}
 \setmathfont{XITS Math}
 \setmonofont[Scale=MatchLowercase]{DejaVu Sans Mono}
+
+\addtokomafont{disposition}{\rmfamily} % serif headings
 
 \theoremstyle{definition}
 \newmdtheoremenv[innertopmargin=0pt]{definition}{Definition}
