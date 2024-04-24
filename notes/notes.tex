@@ -564,7 +564,7 @@ The productions can be read as rules: if $T$ and $U$ are types, then $T → U$ i
   \begin{eqnarray*}
     t,u,v &∷=& x \mid t~u \mid \Lam{x : T}{t} \\
           &\mid& \unit \\
-          &\mid& \absurd_{T} \\
+          &\mid& \absurd_{T}~t \\
           &\mid& (t,u) \mid π₁~t \mid π₂~t \\
           &\mid& \inl_{T}~t \mid \inr_{T}~t \mid \case_{T}~t~u~v
   \end{eqnarray*}
