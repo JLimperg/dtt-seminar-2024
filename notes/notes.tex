@@ -937,7 +937,7 @@ From canonicity immediately follows another very important property, \emph{consi
 It states that there is no closed term of type $⊥$ or, equivalently, that the false proposition is not provable in λL.
 This property makes λL viable as a logic.
 
-\begin{theorem}[Consistency]
+\begin{theorem}[Consistency]\label{th:consistency}
   There is no term $t$ such that $⊢ t : ⊥$.
 \end{theorem}
 
@@ -949,5 +949,76 @@ This property makes λL viable as a logic.
 
 Some authors use slightly different notions of consistency, but these are implied by the previous theorem.
 Canonicity is sometimes taken to mean that every term reduces to a value, but this is an immediate consequence of strong normalisation and our notion of canonicity.
+
+\subsection{Denotational Semantics}
+
+We have so far given meaning to STLC and λL operationally, by explaining how their terms evaluate as programs.
+Another approach is to translate our lambda calculi into appropriate mathematical structures.
+Such a translation is called a \emph{denotational semantics} or \emph{model} and different models can help us prove different properties of the calculi, though we will only see one example of this.
+
+In fact, we have informally been doing this since we defined STLC, viewing $T → U$ as a function space, $\Lam{x : T}{t}$ as a function, and so on.
+In this section, we make these intuitions precise.
+
+\begin{definition}[Full set-theoretic model of λL]
+  We assume an interpretation function $⟦·⟧_{\Base}$ which maps every base type $B ∈ \Base$ to a set $⟦B⟧_{\Base}$.
+  The \emph{full set-theoretic model} of λL is defined by three \emph{interpretation functions}:
+  \begin{itemize}
+    \item $⟦·⟧_{\Types}$ maps each type $T ∈ \Types$ to a set $⟦T⟧_{\Types}$.
+    \item $⟦·⟧_{\Ctxs}$ maps each $Γ ∈ \Ctxs$ to a set $⟦Γ⟧_{\Ctxs}$.
+    \item $⟦·⟧_{\Terms}^{Γ,T}$ maps each term $t$ with $Γ ⊢ t : T$ to a function $⟦t⟧_{\Terms}^{Γ,T} : ⟦Γ⟧_{\Ctxs} → ⟦T⟧_{\Types}$.
+          (Technically, this is a family of functions.)
+  \end{itemize}
+
+  We henceforth omit the subscripts of the interpretation functions since it will always be clear from context.
+  For terms, we write $⟦Γ ⊢ t : T⟧$ instead of $⟦t⟧_{\Terms}^{Γ,T}$.
+
+  The interpretation function for types is defined by recursion on the interpreted type:
+  \begin{align*}
+    ⟦B⟧ &≔ ⟦B⟧_{\Base} \qquad \text{if $B$ is a base type} \\
+    ⟦⊤⟧ &≔ \{∅\} \\
+    ⟦⊥⟧ &≔ ∅ \\
+    ⟦T × U⟧ &≔ ⟦T⟧ × ⟦U⟧ \\
+    ⟦T + U⟧ &≔ ⟦T⟧ ⊎ ⟦U⟧
+  \end{align*}
+
+  The interpretation function for contexts maps each context to the set of possible assignments to its variables:
+  \[
+    ⟦Γ⟧ ≔ \left\{ γ : \dom(Γ) → ⋃_{x ∈ \dom(Γ)} ⟦Γ(x)⟧ \;\bigg|\; γ(x) ∈ ⟦Γ(x)⟧\; ∀\, x ∈ \dom(Γ) \right\}
+  \]
+
+  The interpretation function for terms is defined by recursion on the derivation of $Γ ⊢ t : T$.
+  Recall that this is a function which takes $γ ∈ ⟦Γ⟧$ as an argument and constructs a member of the set $⟦T⟧$.
+  \begin{align*}
+    ⟦Γ ⊢ x : T⟧(γ) &≔ γ(x) \\
+    ⟦Γ ⊢ t~u : T⟧(γ) &≔ ⟦Γ ⊢ t : U → T⟧(γ)(⟦Γ ⊢ u : U⟧(γ)) \\
+    ⟦Γ ⊢ \Lam{x : T}{u} : T → U⟧(γ) &≔ t ↦ ⟦Γ,\, x : T ⊢ u : U⟧(γ ∪ \{x ↦ t\}) \\
+    ⟦Γ ⊢ \unit : ⊤⟧(γ) &≔ ∅ \\
+    ⟦Γ ⊢ \absurd_{T}~t : T⟧(γ) &~\text{[impossible because $⟦Γ ⊢ t : ⊥⟧(γ) ∈ ∅$]} \\
+    ⟦Γ ⊢ (t, u) : T × U⟧(γ) &≔ (⟦Γ ⊢ t : T⟧(γ), ⟦Γ ⊢ u : U⟧(γ)) \\
+    ⟦Γ ⊢ π₁~t : T⟧(γ) &≔ π₁(⟦Γ ⊢ t : T × U⟧(γ)) \\
+    ⟦Γ ⊢ π₂~t : U⟧(γ) &≔ π₂(⟦Γ ⊢ t : T × U⟧(γ)) \\
+    ⟦Γ ⊢ \inl_{U}~t : T + U⟧(γ) &≔ (⟦Γ ⊢ t : T⟧(γ), 1) \\
+    ⟦Γ ⊢ \inr_{T}~u : T + U⟧(γ) &≔ (⟦Γ ⊢ u : U⟧(γ), 2) \\
+    ⟦Γ ⊢ \case_{V}~w~l~r : V⟧(γ) &≔ ⟦Γ ⊢ l : T → V⟧(γ)(t) \qquad \text{if ⟦Γ ⊢ w : T + U⟧(γ) = (t, 1)} \\
+    ⟦Γ ⊢ \case_{V}~w~l~r : V⟧(γ) &≔ ⟦Γ ⊢ r : U → V⟧(γ)(u) \qquad \text{if ⟦Γ ⊢ w : T + U⟧(γ) = (u, 2)}
+  \end{align*}
+  The notation $y ∪ \{x ↦ t\}$ in the third equation denotes the extension of $γ$ with the mapping $x ↦ t$.
+  This is the function $δ : \dom(Γ) ∪ \{x\} → \bigl(⋃_{y ∈ \dom(Γ)} ⟦Γ(y)⟧\bigr) ∪ ⟦T⟧$ with $δ(x) = t$ and $δ(y) = γ(y)$ for all $y ≠ x$.
+\end{definition}
+
+Above, we use the usual set-theoretic encoding of discriminated unions: the discriminated union $A ⊎ B$ is the set $\{ (a, 1) \mid a ∈ A \} ∪ \{ (b, 2) \mid b ∈ B\}$ with the obvious injections from $A$ and $B$ into $A ⊎ B$.
+It may be instructive to check that the definition of the term interpretation function is \enquote*{type-correct}, i.e.\ that each case defines a function with the right domain and codomain.
+
+The model we have defined serves two purposes.
+First, it formalises our intuition about the various constructions of $λL$: abstractions can be interpreted as functions; the product type can be interpreted as the cartesian product; and so on.
+This validates the design of λL.
+
+Second, the model gives an easy proof of consistency:
+\begin{proof}[Alternative proof of Theorem~\ref{th:consistency}]
+  Suppose there is a term $t$ with $⊢ t : ⊥$.
+  Then $⟦⊢ t : ⊥⟧$ is a function which maps each element of $⟦∅⟧$ (the interpretation of the empty context) to an element of $⟦⊥⟧ = ∅$.
+  Such a function can only exist if $⟦∅⟧$ is the empty set, but $⟦∅⟧$ is the set of functions with empty domain, which has one trivial inhabitant.
+  Hence we have a contradiction.
+\end{proof}
 
 \end{document}
