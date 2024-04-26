@@ -969,7 +969,7 @@ In this section, we make these intuitions precise.
           (Technically, this is a family of functions.)
   \end{itemize}
 
-  We henceforth omit the subscripts of the interpretation functions since it will always be clear from context.
+  We henceforth omit the subscripts of the interpretation functions since they will always be clear from context.
   For terms, we write $⟦Γ ⊢ t : T⟧$ instead of $⟦t⟧_{\Terms}^{Γ,T}$.
 
   The interpretation function for types is defined by recursion on the interpreted type:
@@ -1007,18 +1007,21 @@ In this section, we make these intuitions precise.
 \end{definition}
 
 Above, we use the usual set-theoretic encoding of discriminated unions: the discriminated union $A ⊎ B$ is the set $\{ (a, 1) \mid a ∈ A \} ∪ \{ (b, 2) \mid b ∈ B\}$ with the obvious injections from $A$ and $B$ into $A ⊎ B$.
-It may be instructive to check that the definition of the term interpretation function is \enquote*{type-correct}, i.e.\ that each case defines a function with the right domain and codomain.
+It may be instructive to check that the definition of the term interpretation function is \enquote*{type-correct}, i.e.\ that the right-hand side of each equation is a member of the set corresponding to the correct type.
 
-The model we have defined serves two purposes.
-First, it formalises our intuition about the various constructions of $λL$: abstractions can be interpreted as functions; the product type can be interpreted as the cartesian product; and so on.
+The given model formalises our intuitions about the various constructions of $λL$: abstractions can be interpreted as functions; the product type can be interpreted as the cartesian product; and so on.
 This validates the design of λL.
+Note, in particular, that the interpretation of the empty context, $⟦∅⟧$, is a set of functions with codomain $∅$.
+This set has one trivial member, so while $⟦⊢ t : T⟧$ is technically a function into $⟦T⟧$, we can regard it as a subset of $⟦T⟧$.
+Hence, closed terms of type $T → U$ are really interpreted by functions, and similar for the other types.
 
-Second, the model gives an easy proof of consistency:
+More practically, the existence of the given model directly implies consistency.
+
 \begin{proof}[Alternative proof of Theorem~\ref{th:consistency}]
   Suppose there is a term $t$ with $⊢ t : ⊥$.
   Then $⟦⊢ t : ⊥⟧$ is a function which maps each element of $⟦∅⟧$ (the interpretation of the empty context) to an element of $⟦⊥⟧ = ∅$.
-  Such a function can only exist if $⟦∅⟧$ is the empty set, but $⟦∅⟧$ is the set of functions with empty domain, which has one trivial inhabitant.
-  Hence we have a contradiction.
+  But as noted above, $⟦∅⟧$ is a set with at least one member, so there can be no function from $⟦∅⟧$ into $∅$.
+  This contradicts the initial assumption.
 \end{proof}
 
 \end{document}
