@@ -220,7 +220,7 @@ Equivalently, $R^{=}$ is the symmetric closure of $R^{*}$.
 The simply-typed lambda calculus (STLC) is a minimalistic typed functional programming language that can also be viewed as a proof system for propositional logic.
 Type theories can be viewed as extensions of STLC, so it will be useful to consider some concepts and terminology in the simple setting of STLC before moving to type theories.
 
-To that end, we first define the types and terms (programs) of STLC.
+To that end, we first define the types and terms (programs) of STLC.\@
 
 \begin{definition}[Variables]
   We assume a countably infinite set $\Vars$ of variables.
@@ -567,7 +567,7 @@ As we shall see, these correspond to fundamental logical constructions, so we ca
   \]
 \end{definition}
 
-Base types and function types are familiar from STLC.
+Base types and function types are familiar from STLC.\@
 $⊤$ is the type with one value.
 $⊥$ is the type with no values.
 $T × U$ is the (cartesian) \emph{product} of $T$ and $U$.
@@ -592,7 +592,7 @@ The productions can be read as rules: if $T$ and $U$ are types, then $T → U$ i
   \end{eqnarray*}
 \end{definition}
 
-Variables, applications and abstractions are familiar from STLC.
+Variables, applications and abstractions are familiar from STLC.\@
 The new terms have the following intuitive meaning.
 
 \begin{itemize}
@@ -651,7 +651,7 @@ They extract information from these types; e.g.\ $π₁$ and $π₂$ extract the
   \end{mathpar}
 \end{definition}
 
-The first three rules are those of STLC.
+The first three rules are those of STLC.\@
 The other rules declare that the new terms of λL have the expected types.
 Similarly, the following evaluation relation declares that the new terms have the expected computational behaviour.
 
@@ -693,7 +693,7 @@ Similarly, the following evaluation relation declares that the new terms have th
   \end{mathpar}
 \end{definition}
 
-The rules \lbl{β}, \lbl{CongAppL} and \lbl{CongAppR} are again familiar from STLC.
+The rules \lbl{β}, \lbl{CongAppL} and \lbl{CongAppR} are again familiar from STLC.\@
 \lbl{Proj1Pair}, \lbl{Proj2Pair}, \lbl{CaseInl} and \lbl{CaseInr} are new \enquote*{substantive} rules.
 They describe how destructors and constructors interact.
 The various \lbl{Cong} rules are congruence rules which, as in STLC, allow us to make an evaluation step in any part of the term.
@@ -780,7 +780,7 @@ Subject reduction (or a slightly weaker version) is sometimes called \emph{prese
   For any context $Γ$, terms $t,u$ and type $T$, if $Γ ⊢ t : T$ and $t ↝^{*} u$, then $Γ ⊢ u : T$.
 \end{theorem}
 
-As an exercise, we prove that subject reduction holds for STLC.
+As an exercise, we prove that subject reduction holds for STLC.\@
 Extending the proof to λL is then entirely mechanical.
 As is typical, the proof relies crucially on a corresponding lemma about substitution.
 
@@ -1049,7 +1049,7 @@ More practically, the existence of the given model directly implies consistency.
 \section{Dependent Type Theory}
 
 We finally get to dependent type theories.
-This is a class of formal systems which can be regarded as generalisations of STLC.
+This is a class of formal systems which can be regarded as generalisations of STLC.\@
 They are constructed in roughly similar ways and feature at least dependent function types, but beyond these basic characteristics there is much variation.
 
 \subsection{Overview}
@@ -1167,7 +1167,7 @@ The formal system MLTT consists of three judgements:
 The first judgement determines the \emph{well-formed} or \emph{valid} contexts.
 We did not need such a judgement for STLC because there, all types, and therefore all contexts, are well-formed.
 But in a dependent type theory, types can contain terms, so we need to exclude ill-typed terms from our contexts and types.
-The second judgement, $Γ ⊢ a : A$, is a typing judgement as in STLC.
+The second judgement, $Γ ⊢ a : A$, is a typing judgement as in STLC.\@
 The third judgement, $Γ ⊢ a ≡ b : A$, determines when two terms $a$ and $b$ of a type $A$ are considered judgementally equal.
 
 The three judgements are mutually inductively defined.
@@ -1176,7 +1176,7 @@ The judgements are therefore defined not one after the other but all at once.
 However, derivations of these judgements are still finite trees of rule applications.
 In the following, we give the judgements' rules in chunks, grouping together the rules pertaining to each type.
 
-Note that we do not define a reduction relation $↝$ as we did for STLC.
+Note that we do not define a reduction relation $↝$ as we did for STLC.\@
 The judgemental equality rules could be recast as reduction rules to recover a small-step semantics.
 
 \subsubsection{Terms}
@@ -1211,12 +1211,12 @@ The other terms we have not seen so far are
   \item The type of natural numbers, $ℕ$, and its constructors $\zero$ (representing the number 0) and $\suc$ (representing the successor function $· + 1$).
 \end{itemize}
 
-Substitution is defined as for STLC.
+Substitution is defined as for STLC.\@
 The type constructions $\PiT{x : T}{U}$ and $\SigT{x : T}{U}$ are treated like $\Lam{x : T}{t}$ in that they, too, bind variables and we extend the Barendregt convention to them.
 
 \subsubsection{Contexts and Variable Typing}
 
-Conceptually, contexts are partial maps from variables to types, as in STLC.
+Conceptually, contexts are partial maps from variables to types, as in STLC.\@
 However, most presentations of type theories encode these partial maps as lists of bindings $x : A$, where $x$ is a variable and $A$ is a type.
 The type of a variable $y$ in a context $Γ$ is then the type given in the rightmost binding for $y$ in $Γ$.
 
@@ -1249,7 +1249,7 @@ The following definition of well-formedness of contexts captures this requiremen
   \end{mathpar}
 \end{definition}
 
-Having encoded contexts as lists, we need slightly different rules for variables than in our presentation of STLC.
+Having encoded contexts as lists, we need slightly different rules for variables than in our presentation of STLC.\@
 
 \begin{definition}[Typing of variables]
   \begin{mathpar}
@@ -1496,7 +1496,7 @@ The first three rules make judgemental equality an equivalence relation (compare
 
 The fourth rule, \lbl{≡-Subst}, allows us to apply a judgemental equality at any location within a term.
 For example, if we know $Γ ⊢ t ≡ u : A$ and $Γ ⊢ f t : B$, then from the latter hypothesis follows $Γ,\, x : A ⊢ f x : B$ (where $x$ does not occur in $Γ$, $f$, $A$ or $B$) and hence, by \lbl{≡-Subst}, $Γ ⊢ f t ≡ f u : B$.
-In this way, \lbl{≡-Subst} acts as a congruence rule for all term formers of MLTT.
+In this way, \lbl{≡-Subst} acts as a congruence rule for all term formers of MLTT.\@
 The advantage of this setup, compared with explicit congruence rule, is that we only need one rule.
 The disadvantage is that \lbl{≡-Subst} is not syntax-directed, which may complicate some metatheoretic proofs.
 
@@ -1506,7 +1506,7 @@ In other words, the typechecker identifies judgementally equal types.
 
 \subsection{Eta Rules}
 
-In the following sections, we briefly consider some important variations of MLTT.
+In the following sections, we briefly consider some important variations of MLTT.\@
 First, MLTT can be extended with \emph{η} or \emph{uniqueness} rules, which introduce additional judgemental equalities.
 The most common of these is the η rule for lambda abstractions (often called just \enquote{the η rule}):
 \begin{mathpar}
