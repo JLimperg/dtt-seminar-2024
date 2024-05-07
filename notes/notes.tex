@@ -23,6 +23,8 @@
 \newmdtheoremenv[innertopmargin=0pt]{theorem}[definition]{Theorem}
 \newmdtheoremenv[innertopmargin=0pt]{corollary}[definition]{Corollary}
 
+\bibliographystyle{plain}
+
 \newcommand{\Vars}{\mathcal{V}}
 \newcommand{\Base}{\mathcal{B}}
 \newcommand{\Types}{\mathcal{T}}
@@ -1105,7 +1107,7 @@ In the \emph{intensional} variant of type theory, which we will focus on, two te
 Since we ensure that the type theory is strongly normalising, the β-normal form of a term is computable and so judgemental equality is decidable.
 By contrast, \emph{extensional} type theory adds a rule which concludes $T ≡ U$ from a proof of the propositional equality $T = U$.
 Since propositional equality is decidedly not decidable, this renders judgemental equality, and hence typechecking, undecidable as well, but the resulting system is arguably more elegant.
-Perhaps surprisingly, there are also practical implementations of extensional type theories, such as F* (TODO ref).
+Perhaps surprisingly, there are also practical implementations of extensional type theories, such as F*~\cite{DBLP:conf/popl/SwamyHKRDFBFSKZ16}.
 These languages perform incomplete, \enquote*{best-effort} typechecking, which is sufficient for many practical applications.
 
 A final new ingredient in the theory are \emph{dependent eliminators}.
@@ -1151,9 +1153,9 @@ As special cases, Π-types do not have a dedicated eliminator because applicatio
 
 \subsection{Intensional Martin-Löf Type Theory}
 
-We now consider a particularly prominent type theory: intensional Martin-Löf type theory (MLTT), which lies at the heart of the Agda theorem prover (TODO ref) and of the axiomatic formulation of homotopy type theory (TODO ref).
-Since Per Martin-Löf developed multiple type theories, the term MLTT is not exactly well-defined; we choose the theory published in 1975 (TODO ref) with an infinite hierarchy of universes.
-The presentation is inspired by (but substantially different from) that on the nLab (TODO ref).
+We now consider a particularly prominent type theory: intensional Martin-Löf type theory (MLTT), which lies at the heart of the Agda theorem prover~\cite{norell:thesis} and of the axiomatic formulation of homotopy type theory~\cite{hottbook}.
+Since Per Martin-Löf developed multiple type theories, the term MLTT is not exactly well-defined; we choose the theory published in 1975~\cite{mltt75} with an infinite hierarchy of universes.
+The presentation is inspired by (but substantially different from) that on the nLab\footnote{\url{https://ncatlab.org/nlab/show/Martin-Löf+dependent+type+theory}}.
 
 The formal system MLTT consists of three judgements:
 \begin{itemize}
@@ -1536,13 +1538,18 @@ Further, we add judgemental equalities which postulate that the $\El$ operator w
 
 Type theories with only one universe are also commonly discussed.
 This restriction makes the metatheory simpler, and the generalisation to infinitely many universes is often considered mere busywork.
-However, in this case, the universe cannot be a member of itself, so we cannot have $\Univ : \Univ$, as the type theory would then become inconsistent per Girard's paradox (TODO ref).
+However, in this case, the universe cannot be a member of itself, so we cannot have $\Univ : \Univ$, as the type theory would then become inconsistent per Girard's paradox~\cite{girard:thesis}.
 As a result, the universe cannot itself have a type.
 This forces us to introduce two additional judgements: $Γ ⊢ A~\type$, indicating that $A$ is a well-formed type, and $Γ ⊢ A ≡ B~\type$, indicating that $A$ and $B$ are judgementally equal types.
 
 As another variation, we can make our universes \emph{cumulative}.
 This means that any type $T$ in the $n$-th universe $\Univ_{n}$ is automatically also included in all higher universes $\Univ_{n+1}, \Univ_{n+2}, \dots$.
-The type theory of Coq (TODO ref) includes a corresponding rule.
-However, cumulativity seems to have a fairly minor impact on the convenience of working with a type theory in practice, so most other systems eschew it in favour of a simpler theory.
+The type theory of Coq~\cite{coq} includes a corresponding rule.%
+\footnote{The most precise description of the type theory actually implemented in Coq appears in Coq's handbook.
+  The current version of the handbook is included in the cited artifact.
+  The typing rules (excluding those for inductive types) are given on pp.\ 22--25 and conversion is discussed on p.\ 26.}
+However, cumulativity seems to be only of minor importance when working with a type theory in practice, so most systems eschew it to obtain a simpler theory.
+
+\bibliography{lit}
 
 \end{document}
