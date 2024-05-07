@@ -570,7 +570,7 @@ As we shall see, these correspond to fundamental logical constructions, so we ca
 Base types and function types are familiar from STLC.\@
 $⊤$ is the type with one value.
 $⊥$ is the type with no values.
-$T × U$ is the (cartesian) \emph{product} of $T$ and $U$.
+$T × U$ is the (Cartesian) \emph{product} of $T$ and $U$.
 $T + U$ is the \emph{disjoint union} of $T$ and $U$, also called the \emph{sum} or \emph{tagged union} or \emph{discriminated union}.
 In Haskell, $T + U$ is spelled $\mathrm{Either}~T~U$.
 
@@ -736,7 +736,7 @@ This yields sensible rules for negation:
   \item When $¬ T$ is assumed and we can prove $T$, we can conclude $⊥$ (by rule \lbl{App}) and from this follows anything (by rule \lbl{Absurd}).
 \end{itemize}
 
-The typing rules of λL in fact not only correspond to some logical rules; they are sound and complete for \emph{intuitionistic propositional logic (IPL)} .
+The typing rules of λL in fact not only correspond to some logical rules; they are sound and complete for \emph{intuitionistic propositional logic (IPL)}.
 This means that $⊢ T$ is provable in IPL if and only if there is a λL term $t$ such that $⊢ t : ⟨T⟩$, where $⟨T⟩$ is the λL term corresponding to the logical formula $T$.
 The formal system λL thus doubles as both a programming language and a logic, a remarkable fact known as the Curry-Howard correspondence.
 
@@ -1031,7 +1031,7 @@ In this section, we make these intuitions precise.
 Above, we use the usual set-theoretic encoding of discriminated unions: the discriminated union $A ⊎ B$ is the set $\{ (a, 1) \mid a ∈ A \} ∪ \{ (b, 2) \mid b ∈ B\}$ with the obvious injections from $A$ and $B$ into $A ⊎ B$.
 It may be instructive to check that the definition of the term interpretation function is \enquote*{type-correct}, i.e.\ that the right-hand side of each equation is a member of the set corresponding to the correct type.
 
-The given model formalises our intuitions about the various constructions of $λL$: abstractions can be interpreted as functions; the product type can be interpreted as the cartesian product; and so on.
+The given model formalises our intuitions about the various constructions of $λL$: abstractions can be interpreted as functions; the product type can be interpreted as the Cartesian product; and so on.
 This validates the design of λL.
 Note, in particular, that the interpretation of the empty context, $⟦∅⟧$, is a set of functions with codomain $∅$.
 This set has one trivial member, so while $⟦⊢ t : T⟧$ is technically a function into $⟦T⟧$, we can regard it as a subset of $⟦T⟧$.
