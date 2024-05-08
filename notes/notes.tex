@@ -1545,8 +1545,7 @@ This forces us to introduce two additional judgements: $Γ ⊢ A~\type$, indicat
 As another variation, we can make our universes \emph{cumulative}.
 This means that any type $T$ in the $n$-th universe $\Univ_{n}$ is automatically also included in all higher universes $\Univ_{n+1}, \Univ_{n+2}, \dots$.
 The type theory of Coq~\cite{coq} includes a corresponding rule.%
-\footnote{The most precise description of the type theory actually implemented in Coq appears in Coq's handbook.
-  The current version of the handbook is included in the cited artifact.
+\footnote{The most precise description of the type theory actually implemented in Coq appears in Coq's handbook, which is included in the cited artifact.
   The typing rules (excluding those for inductive types) are given on pp.\ 22--25 and conversion is discussed on p.\ 26.}
 However, cumulativity seems to be only of minor importance when working with a type theory in practice, so most systems eschew it to obtain a simpler theory.
 
