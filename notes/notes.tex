@@ -1256,7 +1256,7 @@ Having encoded contexts as lists, we need slightly different rules for variables
   \begin{mathpar}
     \infr{Var}{Γ~\ctx \\ Γ ⊢ A : \Univ_n}{Γ,\, x : A ⊢ x : A}
 
-    \infr{Weaken}{Γ~\ctx \\ Γ ⊢ B : \Univ_n \\ Γ ⊢ x : A \\ x ≠ y}{Γ,\, y : B ⊢ x : A}
+    \infr{Weaken}{Γ ⊢ x : A \\ Γ ⊢ B : \Univ_n \\ x ≠ y}{Γ,\, y : B ⊢ x : A}
   \end{mathpar}
 \end{definition}
 
@@ -1272,7 +1272,7 @@ This setup has the advantage that when we give a rule with premise $Γ ⊢ t : A
   \begin{mathpar}
     \infr{Π-Form}{Γ ⊢ A : \Univ_m \\ Γ,\, x : A ⊢ B : \Univ_n}{Γ ⊢ \PiT{x : A}{B} : \Univ_{\max(m,n)}}
 
-    \infr{Π-Intro}{Γ ⊢ A : \Univ_n \\ Γ,\, x : A ⊢ t : B}{Γ ⊢ \Lam{x : A}{t} : \PiT{x : A}{B}}
+    \infr{Π-Intro}{Γ,\, x : A ⊢ t : B}{Γ ⊢ \Lam{x : A}{t} : \PiT{x : A}{B}}
 
     \infr{Π-Elim}{Γ ⊢ t : \PiT{x : A}{B} \\ Γ ⊢ u : A}{Γ ⊢ t~u : B[x ↦ u]}
 
