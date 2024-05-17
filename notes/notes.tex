@@ -58,6 +58,7 @@
 \newcommand{\ctx}{\mathrm{ctx}}
 \newcommand{\type}{\mathrm{type}}
 \newcommand{\Univ}{\mathcal{U}}
+\newcommand{\Prop}{\mathcal{P}}
 \newcommand{\projl}{\ensuremath{\mathrm{projl}}}
 \newcommand{\projr}{\ensuremath{\mathrm{projr}}}
 \newcommand{\inl}{\ensuremath{\mathrm{inl}}}
@@ -1548,6 +1549,45 @@ The type theory of Coq~\cite{coq} includes a corresponding rule.%
 \footnote{The most precise description of the type theory actually implemented in Coq appears in Coq's handbook, which is included in the cited artifact.
   The typing rules (excluding those for inductive types) are given on pp.\ 22--25 and conversion is discussed on p.\ 26.}
 However, cumulativity seems to be only of minor importance when working with a type theory in practice, so most systems eschew it to obtain a simpler theory.
+
+\subsubsection{Proof Irrelevance}
+
+Some type theories contain a distinguished universe $\Prop$ of \emph{propositions}.
+This is generally taken to be the lowest universe, so we define $\Prop = \Univ_{0}$.
+This means that all other universes shift one up, so e.g.\ the natural number type $ℕ$ now has type $\Univ_{1}$.
+
+The $\Prop$ universe is usually supposed to contain types for which we care not about particular inhabitants but only about \emph{whether} the types are inhabited.
+This mirrors ordinary mathematics, where we usually do not care whether the proposition $A ∨ B$ was proved via $A$ or via $B$.
+In other words, we consider the proof of $A ∨ B$ via $A$ equal to that via $B$.
+This principle of \emph{proof irrelevance} can be added to the type theory as an axiom, i.e.\ a term of type $\PiT{(P : \Prop)~(p : P)~(q : P)}{p = q}$.
+It can also be added as a judgemental equality:
+\begin{mathpar}
+  \infr{ProofIrrel}{Γ ⊢ P : \Prop \\ Γ ⊢ p : P \\ Γ ⊢ q : P}{Γ ⊢ p ≡ q : P}
+\end{mathpar}
+In the latter case, we say that $\Prop$ is a universe of \emph{strict propositions}.
+
+Once we have introduced the universe $\Prop$, we can add propositional versions of the types we have seen.
+E.g.\ for any $A : \Prop$ and $B : \Prop$ we introduce the type $A ∧ B : \Prop$.
+Apart from the restriction that $A$ and $B$ must be propositions, this type is the same as the product type $A × B$, so it has analogous introduction and elimination rules.
+
+As a consequence of proof irrelevance, we must ensure that values of types outside $\Prop$ do not depend on proofs of propositions.
+For instance, one could imagine defining a mapping $A ↦ \bar{A}$ which maps proofs of a proposition $A : \Prop$ to inhabitants of its corresponding type $\bar{A} : \Univ_{n+1}$.
+For disjunctions, which correspond to sum types, we would like to map the canonical proof of $A ∨ B$ from $A$ to $\inl_{B}~a : A + B$ and the canonical proof from $B$ to $\inl_{A}~b : A + B$.
+But this mapping is ill-defined since the two canonical proofs are supposed to be equal and hence indistinguishable.
+
+This restriction is most salient for existentials, which are the propositional version of Σ-types.
+Given $A : \Univ_{n+1}$ and $P : A → \Prop$, we can form the existential $\Ex{a : A}{P~a}$ of type $\Prop$.
+The canonical proofs of this proposition are pairs $(a, p)$ with $a : A$ and $p : P~a$, as for Σ-types.
+But since any two such proofs $(a, p)$ and $(a', p')$ are considered equal by proof irrelevance, we are not allowed to recover the particular member $a$ of $A$ that witnesses the existential.
+Otherwise, we could define a function of type $(\Ex{a : A}{P~a}) → A$ which would, again, be ill-defined.
+
+In general, proof irrelevance thus forces us to restrict the eliminators of propositions: whereas the eliminator for Σ returns a type $P~t : \Univ_{n}$ in an arbitrary universe (including $\Prop$), the eliminator for ∃ always returns a proposition $P~t : \Prop$.
+This ensures that irrelevant terms are only used to construct other irrelevant terms.
+
+Proof irrelevance also has computational meaning: proofs of propositions can be ignored when running a program since they cannot influence the program's result.
+Thus, a compiler for a type theory is free to treat any proposition $A : \Prop$ as the trivial unit type $\top$.
+Moreover, the Σ-type $\SigT{a : A}{P~a}$ where $P : A → \Prop$ is a proposition can be treated as just $A$.
+Such \emph{proof erasure} greatly improves the performance of compiled code since proofs terms, which tend to be very big, can be omitted.
 
 \bibliography{lit}
 
