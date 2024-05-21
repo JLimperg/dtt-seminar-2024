@@ -27,4 +27,4 @@ jobs:
       with:
         tag: ${{steps.get_version.outputs.version}}
         commit: ${{github.ref}}
-        artifacts: "notes/build/notes.pdf,lecture-slides/writing/build/writing.pdf"
+        artifacts: "notes/build/notes.pdf,lecture-slides/writing/build/writing.pdf,lecture-slides/writing/build/writing-handout.pdf"

@@ -5,4 +5,5 @@ pushd notes && \
   popd &&
   pushd lecture-slides/writing && \
   ./mk && \
+  ./mk-handout && \
   popd
