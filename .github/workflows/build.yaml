@@ -11,12 +11,12 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-    - name: Build notes.pdf
+    - name: Build PDFs
       uses: xu-cheng/texlive-action@v2
       with:
         texlive_version: 2023
         scheme: full
-        run: cd notes && ./mk
+        run: ./mk
     - name: Get version
       id: get_version
       run: |
@@ -27,4 +27,6 @@ jobs:
       with:
         tag: ${{steps.get_version.outputs.version}}
         commit: ${{github.ref}}
-        artifacts: "notes/build/notes.pdf"
+        artifacts:
+        - "notes/build/notes.pdf"
+        - "lecture-slides/writing/build/writing.pdf"
