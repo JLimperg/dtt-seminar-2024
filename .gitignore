@@ -1,2 +1,3 @@
 .auctex-auto
 /notes/build
+/lecture-slides/*/build
